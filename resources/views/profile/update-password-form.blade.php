@@ -1,11 +1,11 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Ubah Password') }}
+        <h2 class="text-lg font-medium text-gray-100">
+            {{ __('Perbarui Kata Sandi') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Pastikan akun Anda menggunakan password yang panjang dan acak agar tetap aman.') }}
+        <p class="mt-1 text-sm text-gray-400">
+            {{ __('Pastikan akun Anda menggunakan kata sandi yang panjang dan acak agar tetap aman.') }}
         </p>
     </header>
 
@@ -14,27 +14,34 @@
         @method('put')
 
         <div>
-            <label for="current_password" class="block font-semibold mb-1">{{ __('Password Saat Ini') }}</label>
-            <input id="current_password" name="current_password" type="password" class="w-full border rounded px-3 py-2" autocomplete="current-password" />
-            @if($errors->updatePassword->get('current_password')) <p class="text-red-500 text-sm mt-1">{{ $errors->updatePassword->first('current_password') }}</p> @endif
+            <x-input-label for="current_password" :value="__('Current Password')" class="text-gray-300"/>
+            <x-text-input id="current_password" name="current_password" type="password" class="mt-1 block w-full bg-gray-900 text-gray-300 border-gray-600" autocomplete="current-password" />
+            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
         </div>
 
         <div>
-            <label for="password" class="block font-semibold mb-1">{{ __('Password Baru') }}</label>
-            <input id="password" name="password" type="password" class="w-full border rounded px-3 py-2" autocomplete="new-password" />
-            @if($errors->updatePassword->get('password')) <p class="text-red-500 text-sm mt-1">{{ $errors->updatePassword->first('password') }}</p> @endif
+            <x-input-label for="password" :value="__('New Password')" class="text-gray-300"/>
+            <x-text-input id="password" name="password" type="password" class="mt-1 block w-full bg-gray-900 text-gray-300 border-gray-600" autocomplete="new-password" />
+            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
         </div>
 
         <div>
-            <label for="password_confirmation" class="block font-semibold mb-1">{{ __('Konfirmasi Password Baru') }}</label>
-            <input id="password_confirmation" name="password_confirmation" type="password" class="w-full border rounded px-3 py-2" autocomplete="new-password" />
-            @if($errors->updatePassword->get('password_confirmation')) <p class="text-red-500 text-sm mt-1">{{ $errors->updatePassword->first('password_confirmation') }}</p> @endif
+            <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-gray-300"/>
+            <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full bg-gray-900 text-gray-300 border-gray-600" autocomplete="new-password" />
+            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
         </div>
 
         <div class="flex items-center gap-4">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">{{ __('Simpan') }}</button>
+            <x-primary-button>{{ __('Simpan') }}</x-primary-button>
+
             @if (session('status') === 'password-updated')
-                <p class="text-sm text-gray-600">{{ __('Tersimpan.') }}</p>
+                <p
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 2000)"
+                    class="text-sm text-gray-400"
+                >{{ __('Tersimpan.') }}</p>
             @endif
         </div>
     </form>

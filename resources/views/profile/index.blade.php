@@ -3,30 +3,35 @@
 @section('title', 'Profil Pengguna')
 
 @section('content')
-<div class="max-w-4xl mx-auto p-5 space-y-8">
-    <div class="bg-white p-6 rounded-lg shadow flex items-center space-x-6">
-        <img src="{{ $user->avatar ?? 'https://placehold.co/100x100/EBF4FF/7F9CF5?text=Avatar' }}" alt="Avatar" class="h-24 w-24 rounded-full border-4 border-blue-200">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">{{ $user->name }}</h1>
-            <p class="text-gray-600">{{ $user->email }}</p>
-            <p class="text-gray-500 mt-2 italic">"{{ $user->bio ?? 'Pengguna ini belum menambahkan bio.' }}"</p>
-            <a href="{{ route('profile.edit') }}" class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 text-sm rounded hover:bg-blue-600 transition">
-                Pengaturan Akun
-            </a>
-        </div>
-    </div>
+<div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 text-gray-100">
+                <div class="flex flex-col items-center text-center">
+                    
+                    @if(Auth::user()->avatar)
+                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Avatar" class="w-32 h-32 rounded-full mb-4 object-cover">
+                    @else
+                        <div class="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 mb-4">
+                            <span class="text-4xl">?</span>
+                        </div>
+                    @endif
 
-    <div class="bg-white p-6 rounded-lg shadow">
-        <h2 class="text-xl font-bold mb-4 text-gray-800">Tim Saya</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @forelse ($teams as $team)
-                <div class="bg-gray-50 p-4 rounded border border-gray-200">
-                    <h3 class="font-semibold text-blue-700">{{ $team->name }}</h3>
-                    <p class="text-sm text-gray-600 truncate">{{ $team->description }}</p>
+                    <h2 class="text-2xl font-semibold">{{ Auth::user()->name }}</h2>
+                    <p class="text-gray-400">{{ Auth::user()->email }}</p>
+                    
+                    {{-- Tampilkan Bio --}}
+                    <p class="text-gray-300 mt-4 max-w-2xl">
+                        {{ Auth::user()->bio ?: 'Pengguna ini belum menuliskan bio.' }}
+                    </p>
+
+                    <div class="mt-6">
+                        <a href="{{ route('profile.edit') }}" class="inline-flex items-center px-4 py-2 bg-gray-700 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                            Edit Profil
+                        </a>
+                    </div>
                 </div>
-            @empty
-                <p class="text-gray-500 col-span-full">Anda belum bergabung dengan tim manapun.</p>
-            @endforelse
+            </div>
         </div>
     </div>
 </div>

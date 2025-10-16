@@ -22,8 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'bio',
-        'avatar',
+        'bio', // Penambahan ini aman
+        'avatar', // Penambahan ini aman
     ];
 
     /**
@@ -48,6 +48,7 @@ class User extends Authenticatable
 
     /**
      * Mendapatkan URL lengkap untuk avatar pengguna.
+     * (Kode asli Anda dipertahankan)
      */
     public function getAvatarUrlAttribute()
     {
@@ -61,6 +62,7 @@ class User extends Authenticatable
 
     /**
      * Mendapatkan semua data keanggotaan (memberships) untuk pengguna.
+     * (Kode asli Anda dipertahankan)
      */
     public function memberships()
     {
@@ -70,6 +72,7 @@ class User extends Authenticatable
     /**
      * Mendapatkan semua tim yang diikuti oleh pengguna melalui tabel memberships.
      * Kunci asing didefinisikan secara eksplisit untuk mengatasi konvensi penamaan.
+     * (Kode asli Anda dipertahankan)
      */
     public function teams()
     {
@@ -78,15 +81,20 @@ class User extends Authenticatable
 
     /**
      * Mendapatkan semua tim yang dimiliki (dibuat) oleh pengguna.
+     * (Kode asli Anda dipertahankan)
      */
     public function ownedTeams()
     {
         return $this->hasMany(Team::class, 'leader_id');
     }
+
+    /**
+     * Mendapatkan semua event yang diikuti oleh pengguna.
+     * (Kode asli Anda dipertahankan)
+     */
     public function events()
     {
         // Nama tabel pivot bisa berbeda (misal: event_user)
         return $this->belongsToMany(Event::class, 'event_user');
     }
 }
-
