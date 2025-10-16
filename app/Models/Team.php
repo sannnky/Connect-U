@@ -21,6 +21,7 @@ class Team extends Model
 
     /**
      * Mendapatkan pemimpin (leader) dari tim ini.
+     * (Fungsi asli Anda, tidak diubah)
      */
     public function leader()
     {
@@ -29,6 +30,7 @@ class Team extends Model
 
     /**
      * Mendapatkan semua anggota tim.
+     * (Fungsi asli Anda, tidak diubah)
      */
     public function members()
     {
@@ -37,10 +39,22 @@ class Team extends Model
 
     /**
      * Mendapatkan semua proyek yang dimiliki tim ini.
+     * (Fungsi asli Anda, tidak diubah)
      */
     public function projects()
     {
         // Relasi diubah untuk menunjuk ke model "Project"
         return $this->hasMany(Project::class);
+    }
+
+    // --- PENAMBAHAN KODE BARU UNTUK FITUR PERMOHONAN BERGABUNG ---
+
+    /**
+     * Mendapatkan semua permohonan bergabung yang ditujukan untuk tim ini.
+     * (Fungsi baru yang ditambahkan)
+     */
+    public function joinRequests()
+    {
+        return $this->hasMany(JoinRequest::class);
     }
 }

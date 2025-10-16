@@ -2,30 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\events;
-use App\Models\categories;
 use App\Models\Category;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        $events = event::with('category')->latest()->get();
+        $events = Event::with('category')->latest()->get();
         return view('events.index', compact('events'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        // Ambil data kategori untuk ditampilkan di form
+        $this->authorize('create', Event::class);
         $categories = Category::all();
         return view('events.create', compact('categories'));
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
-        // Validasi data agar sesuai dengan struktur database
+        $this->authorize('create', Event::class);
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -34,16 +42,40 @@ class EventController extends Controller
             'type' => 'required|in:Internal,Eksternal',
             'category_id' => 'nullable|exists:categories,id',
         ]);
-
-        // Buat event hanya dengan data yang sudah tervalidasi
-        event::create($validatedData);
-
+        $validatedData['user_id'] = Auth::id();
+        Event::create($validatedData);
         return redirect()->route('events.index')->with('success', 'Event berhasil dibuat!');
     }
 
+    /**
+     * Display the specified resource.
+     */
+    public function show(Event $event)
+    {
+        $this->authorize('view', $event);
+        $event->load('category');
+        return view('events.show', compact('event'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Event $event)
+    {
+        $this->authorize('update', $event);
+        $categories = Category::all();
+        return view('events.edit', compact('event', 'categories'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Event $event)
     {
-        $request->validate([
+        // PENAMBAHAN WAJIB: Memanggil authorize sebelum update
+        $this->authorize('update', $event);
+
+        $validatedData = $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
             'start_at' => 'required|date',
@@ -51,23 +83,18 @@ class EventController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'type' => 'required|in:Internal,Eksternal'
         ]);
-        $event->update($request->all());
+        $event->update($validatedData);
         return redirect()->route('events.show', $event->id)->with('success', 'Event berhasil diupdate');
     }
 
-    public function show(Event $event)
-    {
-        $event->load('category');
-        return view('events.show', compact('event'));
-    }
-
-    public function edit(Event $event)
-    {
-        $categories = Category::all();
-        return view('events.edit', compact('event', 'categories'));
-    }
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Event $event)
     {
+        // PENAMBAHAN WAJIB: Memanggil authorize sebelum delete
+        $this->authorize('delete', $event);
+
         $event->delete();
         return redirect()->route('events.index')->with('success', 'Event berhasil dihapus');
     }

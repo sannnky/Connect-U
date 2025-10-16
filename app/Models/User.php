@@ -97,4 +97,53 @@ class User extends Authenticatable
         // Nama tabel pivot bisa berbeda (misal: event_user)
         return $this->belongsToMany(Event::class, 'event_user');
     }
+
+    /**
+     * Check if the user belongs to the given team.
+     * (Fungsi otorisasi yang sudah ada)
+     */
+    public function belongsToTeam(Team $team): bool
+    {
+        // Pengecekan null-safe untuk relasi team
+        if (!$team) {
+            return false;
+        }
+        return $this->teams()->where('team_id', $team->id)->exists();
+    }
+
+    /**
+     * Check if the user is the leader of the given team.
+     * (Fungsi otorisasi yang sudah ada)
+     */
+    public function isLeaderOf(Team $team): bool
+    {
+        // Pengecekan null-safe untuk relasi team
+        if (!$team) {
+            return false;
+        }
+        // Memastikan relasi ownedTeams sudah benar menunjuk ke 'leader_id'
+        return $this->id === $team->leader_id;
+    }
+
+    // --- PENAMBAHAN KODE BARU UNTUK FITUR PERMOHONAN BERGABUNG ---
+
+    /**
+     * Mendapatkan semua permohonan bergabung yang dibuat oleh pengguna.
+     */
+    public function joinRequests()
+    {
+        return $this->hasMany(JoinRequest::class);
+    }
+
+    /**
+     * Cek apakah pengguna memiliki permohonan yang masih pending untuk tim tertentu.
+     */
+    public function hasPendingJoinRequestFor(Team $team): bool
+    {
+        // Pengecekan null-safe untuk relasi team
+        if (!$team) {
+            return false;
+        }
+        return $this->joinRequests()->where('team_id', $team->id)->where('status', 'pending')->exists();
+    }
 }
