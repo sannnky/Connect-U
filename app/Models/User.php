@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -21,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'bio',
+        'avatar',
     ];
 
     /**
@@ -42,4 +45,43 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Mendapatkan URL lengkap untuk avatar pengguna.
+     */
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            return Storage::url($this->avatar);
+        }
+
+        // Sediakan URL avatar default jika tidak ada foto yang diunggah
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=random&color=fff';
+    }
+
+    /**
+     * Mendapatkan semua data keanggotaan (memberships) untuk pengguna.
+     */
+    public function memberships()
+    {
+        return $this->hasMany(memberships::class);
+    }
+
+    /**
+     * Mendapatkan semua tim yang diikuti oleh pengguna melalui tabel memberships.
+     * Kunci asing didefinisikan secara eksplisit untuk mengatasi konvensi penamaan.
+     */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'memberships', 'user_id', 'team_id');
+    }
+
+    /**
+     * Mendapatkan semua tim yang dimiliki (dibuat) oleh pengguna.
+     */
+    public function ownedTeams()
+    {
+        return $this->hasMany(Team::class, 'leader_id');
+    }
 }
+

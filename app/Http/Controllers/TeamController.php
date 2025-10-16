@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\memberships;
 use App\Models\Team;
+use App\Models\teams;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TeamController extends Controller
 {
@@ -23,15 +27,25 @@ class TeamController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'leader_id' => 'nullable|exists:users,id',
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
         ]);
-        $team = Team::create($request->all());
-        if ($request->leader_id) {
-            $team->members()->attach($request->leader_id, ['role' => 'Ketua']);
-        }
-        return redirect()->route('teams.index')->with('success', 'Tim berhasil dibuat');
+
+        DB::transaction(function () use ($request) {
+            // 1. Buat tim baru
+            $team = Team::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'leader_id' => Auth::id(), // DIPERBAIKI: Diubah dari owner_id menjadi leader_id
+            ]);
+    
+            // 2. Tambahkan pembuat tim sebagai anggota pertama
+            memberships::create([
+                'team_id' => $team->id,
+                'user_id' => Auth::id(),
+                'role' => 'leader', // Diubah menjadi 'leader' agar lebih konsisten
+            ]);
+        });
     }
 
     public function show(Team $team)

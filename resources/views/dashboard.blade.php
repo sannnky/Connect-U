@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
+            {{ ('Dashboard') }}
         </h2>
     </x-slot>
 
@@ -9,16 +9,16 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("You're logged in!") }}
+                    {{ ("You're logged in!") }}
                 </div>
             </div>
 
             <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {{-- Announcement Section --}}
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">📢 Pengumuman Internal</h3>
                         <div class="space-y-4">
-                            {{-- Loop through announcements --}}
                             @forelse ($announcements as $announcement)
                                 <div class="border-l-4 border-blue-500 pl-4">
                                     <h4 class="font-bold">{{ $announcement->title }}</h4>
@@ -31,10 +31,10 @@
                     </div>
                 </div>
 
+                {{-- Category Section --}}
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">🗂️ Kategori Proyek / Diskusi / Tugas</h3>
-                        {{-- Category statistics or quick filters --}}
                         <div class="flex justify-between items-center">
                             <p>Total Kategori:</p>
                             <p class="font-bold text-2xl">{{ $categoryCount ?? 0 }}</p>
@@ -52,10 +52,10 @@
                     </div>
                 </div>
 
+                {{-- Event Section --}}
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">📅 Jadwal atau Kegiatan</h3>
-                        {{-- Upcoming events calendar --}}
                         <ul>
                             @forelse ($upcomingEvents as $event)
                                 <li class="mb-2">
@@ -68,10 +68,10 @@
                     </div>
                 </div>
 
+                {{-- Invitation Section --}}
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">✉️ Undangan ke Proyek / Tim</h3>
-                        {{-- Invitation notifications --}}
                         <ul>
                             @forelse ($invitations as $invitation)
                                 <li class="mb-2">
@@ -84,10 +84,10 @@
                     </div>
                 </div>
 
+                {{-- Progress Section --}}
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-4">📈 Progress Tugas / Proyek</h3>
-                        {{-- Project progress bars --}}
                         @forelse ($projectsWithProgress as $project)
                             <div class="mb-4">
                                 <div class="flex justify-between mb-1">

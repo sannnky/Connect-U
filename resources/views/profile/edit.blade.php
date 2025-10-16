@@ -1,42 +1,48 @@
-<!-- filepath: c:\xampp\htdocs\Connecting-U\connecting-u\resources\views\profile\edit.blade.php -->
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Pengaturan Profil') }}
+        </h2>
+    </x-slot>
 
-@section('title', 'Edit Profil')
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.update-profile-information-form')
+                </div>
+            </div>
 
-@section('content')
-<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-6">Edit Profil</h1>
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.update-password-form')
+                </div>
+            </div>
 
-    @if(session('success'))
-        <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-3 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.delete-user-form')
+                </div>
+            </div>
 
-    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PATCH')
-        <div class="mb-4">
-            <label for="name" class="block font-semibold mb-1">Nama</label>
-            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="w-full border rounded px-3 py-2" required>
+            <!-- Tombol Logout -->
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                        {{ __('Logout') }}
+                    </h2>
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        {{ __('Keluar dari sesi akun Anda saat ini.') }}
+                    </p>
+                    <form method="POST" action="{{ route('logout') }}" class="mt-6">
+                        @csrf
+                        <x-danger-button type="submit">
+                            {{ __('Logout') }}
+                        </x-danger-button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="mb-4">
-            <label for="email" class="block font-semibold mb-1">Email</label>
-            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="w-full border rounded px-3 py-2" required>
-        </div>
-        <div class="mb-4">
-            <label for="bio" class="block font-semibold mb-1">Bio</label>
-            <textarea name="bio" id="bio" class="w-full border rounded px-3 py-2" rows="3">{{ old('bio', $user->bio ?? '') }}</textarea>
-        </div>
-        <div class="mb-4">
-            <label for="avatar" class="block font-semibold mb-1">Avatar</label>
-            <input type="file" name="avatar" id="avatar" class="w-full border rounded px-3 py-2">
-            @if(!empty($user->avatar))
-                <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" class="mt-2 h-16 w-16 rounded-full object-cover">
-            @endif
-        </div>
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Simpan Perubahan</button>
-        <a href="{{ url()->previous() }}" class="ml-3 text-gray-600 hover:underline">Batal</a>
-    </form>
-</div>
-@endsection
+    </div>
+</x-app-layout>
+

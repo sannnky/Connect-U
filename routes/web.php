@@ -10,6 +10,7 @@ use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::resource('categories', CategoryController::class)->except([
+    'create', 'store'
+    ]);
+    
     // Menggunakan Route::resource untuk menyederhanakan rute CRUD
     // Satu baris ini setara dengan 7 baris rute (index, create, store, show, edit, update, destroy)
     Route::resource('teams', TeamController::class);

@@ -40,7 +40,7 @@
         <div class="max-w-6xl mx-auto px-4 flex flex-col items-center">
             <!-- Menu Links -->
             <div class="flex space-x-8 mb-6 text-lg">
-                <a href="#" class="hover:text-gray-200 transition">About</a>
+                <a href="{{ route('teams.create') }}" class="hover:text-gray-200 transition">Buat Tim</a>
                 <a href="#" class="hover:text-gray-200 transition">Blog</a>
                 <a href="#" class="hover:text-gray-200 transition">Jobs</a>
                 <a href="#" class="hover:text-gray-200 transition">Press</a>

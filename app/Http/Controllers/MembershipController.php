@@ -2,64 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Membership;
+use App\Models\memberships;
 use App\Models\teams;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MembershipController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan semua anggota dari sebuah tim.
+     * (Biasanya ini ditampilkan di halaman detail tim)
+     */
+    public function index(teams $team)
     {
-        $memberships = Membership::with('team', 'user')->get();
-        return view('memberships.index', compact('memberships'));
+        // Pastikan hanya leader tim yang bisa melihat halaman ini jika diperlukan
+        // $this->authorize('view', $team);
+
+        $members = $team->members;
+        return view('teams.members.index', compact('team', 'members'));
     }
 
-    public function create()
-    {
-        $teams = Team::all();
-        $users = User::all();
-        return view('memberships.create', compact('teams', 'users'));
-    }
-
-    public function store(Request $request)
+    /**
+     * Menambahkan user baru ke dalam tim.
+     * (Biasanya dipicu dari form undangan atau tambah anggota)
+     */
+    public function store(Request $request, teams $team)
     {
         $request->validate([
-            'team_id' => 'required|exists:teams,id',
             'user_id' => 'required|exists:users,id',
-            'role' => 'nullable|string'
+            'role' => 'nullable|string|max:255',
         ]);
-        Membership::create($request->all());
-        return redirect()->route('memberships.index')->with('success', 'Anggota berhasil ditambahkan ke tim');
-    }
 
-    public function show(Membership $membership)
-    {
-        $membership->load('team', 'user');
-        return view('memberships.show', compact('membership'));
-    }
+        // Cek apakah user sudah menjadi anggota
+        $isMember = $team->members()->where('user_id', $request->user_id)->exists();
 
-    public function edit(Membership $membership)
-    {
-        $teams = Team::all();
-        $users = User::all();
-        return view('memberships.edit', compact('membership', 'teams', 'users'));
-    }
+        if ($isMember) {
+            return back()->with('error', 'Pengguna ini sudah menjadi anggota tim.');
+        }
 
-    public function update(Request $request, Membership $membership)
-    {
-        $request->validate([
-            'team_id' => 'required|exists:teams,id',
-            'user_id' => 'required|exists:users,id',
-            'role' => 'nullable|string'
+        // Tambahkan user sebagai anggota
+        memberships::create([
+            'team_id' => $team->id,
+            'user_id' => $request->user_id,
+            'role' => $request->role ?? 'Member', // Default role
         ]);
-        $membership->update($request->all());
-        return redirect()->route('memberships.show', $membership->id)->with('success','Data anggota tim berhasil diupdate');
+
+        return back()->with('success', 'Anggota berhasil ditambahkan.');
     }
 
-    public function destroy(Membership $membership)
+
+    /**
+     * Menghapus anggota dari sebuah tim.
+     */
+    public function destroy(teams $team, User $user)
     {
-        $membership->delete();
-        return redirect()->route('memberships.index')->with('success','Anggota berhasil dihapus dari tim');
+        // Pastikan hanya leader yang bisa menghapus anggota
+        if (Auth::id() !== $team->leader_id) {
+            return back()->with('error', 'Anda tidak memiliki izin untuk melakukan aksi ini.');
+        }
+
+        // Jangan biarkan leader menghapus dirinya sendiri
+        if ($user->id === $team->leader_id) {
+            return back()->with('error', 'Leader tidak bisa keluar dari timnya sendiri.');
+        }
+
+        // Hapus keanggotaan
+        $team->members()->detach($user->id);
+
+        return back()->with('success', 'Anggota berhasil dihapus dari tim.');
     }
 }
