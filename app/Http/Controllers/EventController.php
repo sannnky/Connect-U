@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\events;
 use App\Models\categories;
 use App\Models\Category;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
     public function index()
     {
-        $events = events::with('category')->latest()->get();
+        $events = event::with('category')->latest()->get();
         return view('events.index', compact('events'));
     }
 
@@ -35,12 +36,12 @@ class EventController extends Controller
         ]);
 
         // Buat event hanya dengan data yang sudah tervalidasi
-        events::create($validatedData);
+        event::create($validatedData);
 
         return redirect()->route('events.index')->with('success', 'Event berhasil dibuat!');
     }
 
-    public function update(Request $request, events $event)
+    public function update(Request $request, Event $event)
     {
         $request->validate([
             'name' => 'required|string',
@@ -54,18 +55,18 @@ class EventController extends Controller
         return redirect()->route('events.show', $event->id)->with('success', 'Event berhasil diupdate');
     }
 
-    public function show(events $event)
+    public function show(Event $event)
     {
         $event->load('category');
         return view('events.show', compact('event'));
     }
 
-    public function edit(Events $event)
+    public function edit(Event $event)
     {
         $categories = Category::all();
         return view('events.edit', compact('event', 'categories'));
     }
-    public function destroy(Events $event)
+    public function destroy(Event $event)
     {
         $event->delete();
         return redirect()->route('events.index')->with('success', 'Event berhasil dihapus');

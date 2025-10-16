@@ -83,5 +83,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Team::class, 'leader_id');
     }
+    public function events()
+    {
+        // Nama tabel pivot bisa berbeda (misal: event_user)
+        return $this->belongsToMany(Event::class, 'event_user');
+    }
 }
 

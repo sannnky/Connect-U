@@ -1,47 +1,30 @@
 <?php
 
-namespace App\Http\controllers;
+namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Models\Event; // Menggunakan model Event yang benar
-use App\Models\Project; // Menggunakan model Project yang benar
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
-     * Menampilkan halaman profil publik pengguna.
+     * Menampilkan halaman profil publik.
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $user = $request->user();
+        // ===== KESALAHAN SEBELUMNYA ADA DI BARIS INI (SUDAH DIPERBAIKI) =====
+        $user = Auth::user();
+        $teams = $user->teams;
 
-        // 1. Ambil semua tim yang diikuti pengguna
-        $teams = $user->teams()->get();
-        $teamIds = $teams->pluck('id');
-
-        // 2. Ambil semua ID kategori unik dari proyek yang terkait dengan tim tersebut
-        $categoryIds = Project::whereIn('team_id', $teamIds)
-            ->whereNotNull('category_id')
-            ->pluck('category_id')
-            ->unique();
-
-        // 3. Ambil semua event MENDATANG yang memiliki kategori yang cocok
-        $events = Event::whereIn('category_id', $categoryIds)
-            ->where('start_at', '>=', now()) // <-- Filter untuk event yang belum lewat
-            ->orderBy('start_at', 'asc') // <-- Urutkan dari yang paling dekat
-            ->get();
-
-        return view('profile.index', compact('user', 'teams', 'events'));
+        return view('profile.index', compact('user', 'teams'));
     }
 
     /**
-     * Menampilkan halaman edit profil.
+     * Menampilkan form pengaturan profil.
      */
     public function edit(Request $request): View
     {
@@ -55,26 +38,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = $request->user();
-        $validatedData = $request->validated();
+        $request->user()->fill($request->validated());
 
-        if ($request->hasFile('avatar')) {
-            // Hapus avatar lama jika ada
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            // Simpan avatar baru
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $validatedData['avatar'] = $path;
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
         }
 
-        $user->fill($validatedData);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
+        $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
@@ -89,15 +59,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-
         Auth::logout();
-
         $user->delete();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Mengarahkan ke halaman login dengan pesan sukses
-        return Redirect::route('login')->with('status', 'Akun Anda telah berhasil dihapus.');
+        return Redirect::to('/');
     }
 }

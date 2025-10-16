@@ -12,37 +12,31 @@ use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\CategoryController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-/* Rute Publik */
+// Rute Publik
 Route::get('/', function () {
     return view('welcome');
 });
 
-/* Rute Dashboard (Membutuhkan Login & Verifikasi Email) */
+// Rute Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-/* Rute-rute yang Dilindungi (Hanya bisa diakses setelah login) */
+// Rute-rute yang Membutuhkan Login
 Route::middleware('auth')->group(function () {
     
-    // Rute khusus untuk Profile
-    Route::get('/profile/index', [ProfileController::class, 'index'])->name('profile.index');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Rute untuk MELIHAT profil publik
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    
+    // Rute untuk MENGEDIT profil
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    
+    // Rute untuk UPDATE dan DELETE profil
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('categories', CategoryController::class)->except([
-    'create', 'store'
-    ]);
-    
-    // Menggunakan Route::resource untuk menyederhanakan rute CRUD
-    // Satu baris ini setara dengan 7 baris rute (index, create, store, show, edit, update, destroy)
+    // Rute resource lainnya
+    Route::resource('categories', CategoryController::class)->except(['create', 'store']);
     Route::resource('teams', TeamController::class);
     Route::resource('projects', ProjectController::class);
     Route::resource('events', EventController::class);
@@ -50,8 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('progress', ProgressController::class);
     Route::resource('discussions', DiscussionController::class);
     Route::resource('attachments', AttachmentController::class);
-
 });
 
-/* Auth routes dari Breeze */
+// Rute otentikasi
 require __DIR__.'/auth.php';

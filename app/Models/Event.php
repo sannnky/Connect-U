@@ -40,4 +40,9 @@ class Event extends Model
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
+    public function users()
+    {
+        // Sesuaikan nama tabel pivot jika perlu
+        return $this->belongsToMany(User::class, 'event_user');
+    }
 }
